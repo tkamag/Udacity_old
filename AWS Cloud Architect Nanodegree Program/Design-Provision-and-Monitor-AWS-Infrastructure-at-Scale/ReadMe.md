@@ -1,63 +1,149 @@
-# Project: Recoverability In AWS
+# Design, Provision and Monitor AWS Infrastructure at Scale
 
-<figure>
-  <center><img src="./fig/aws-cloudformation.png" alt=".." title="Optional title" width="20%" height="15%"/></center>  
- <figcaption></figcaption>
-</figure>
+In this project, you will **plan, design, provision, and monitor infrastructure in AWS** using industry-standard and open source tools. You will practice the skills you have learned throughout the course to optimize infrastructure for cost and performance. You will also use Terraform to provision and configure AWS services in a global configuration.
 
-In this project you will create **highly available solutions to common use cases**. You will build a **Multi-AvailabilityZone, Multi-Region database and show how to use it in multiple geographically separate AWS regions**. You will also build a website hosting solution that is versioned so that any data destruction and accidents can be quickly and easily undone.
+# Prerequisites
 
-## A.1 GitHub Repository
+## A.1 Before you get started
 
-To get started, clone this GitHub repository. Aside from instructions, it contains a **CloudFormation** script to build an **AWS VPC** with public and private subnets. It also contains an example website that you will host in an **AWS S3** bucket in your account.
+Verify that you have installed the required tooling for this project:
 
-<https://github.com/udacity/nd063-c2-design-for-availability-resilience-reliability-replacement-project-starter-template>
+* [AWS CLI](https://aws.amazon.com/cli/)
 
-## A.2 CloudFormation
+* [Terraform](https://www.terraform.io/)
 
-In this project, you will use the [AWS CloudFormation](https://aws.amazon.com/cloudformation/) to create **Virtual Private Clouds**.
-> **CloudFormation** is an AWS service that allows you to create **infrastructure as code$**.
+## A.2 Permissions
 
-This allows you to define the infrastructure you'd like to create in code, just like you do with software. This has the benefits of being able to share your infrastructure in a common language, use source code control systems to version your infrastructure and allows for documenting and reviewing of infrastructure and infrastructure proposed changes.
+The tasks carried out for this project should be carried out by a user logged in with the IAM role of Administrator with access to Billing information. You can learn more about setting up a user with the Admin role here: [Creating Your First Admin User and Group](https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started_create-admin-group.html)
 
-**CloudFormation** allows you to use a configuration file written in a YAML file to automate the creation of AWS resources such as VPCs. In this project, you will use a pre-made **CloudFormation** template to get you started. This will allow you to create some of the infrastructure that you'll need without spending a lot of time learning details that are beyond the scope of this course.
+## A.3 Task 1: Create AWS Architecture Schematics
 
-You can find the YAML file in the GitHub repo: <https://github.com/udacity/nd063-c2-design-for-availability-resilience-reliability-replacement-project-starter-template/blob/master/cloudformation/vpc.yaml>
+### A.3.1 Part 1
 
-In order to build a VPC from the YAML file, follow the steps (keep in mind you'll want to name the primary VPC "Primary" and the secondary VPC "Secondary":
+You have been asked to plan and provision a cost-effective AWS infrastructure for a new social media application development project for 50,000 single-region users. The project requires the following AWS infrastructure and services. Please include your name and label all elements of the infrastructure on the diagram.
 
-1. Services -> CloudFormation
-2. Create stack **With new resources (standard)**
-3. Template is ready
-4. Upload a template file
-5. Click “Choose file” button
-6. Select provided YAML file
-7. Next
+* Infrastructure in the following regions: us-east-1
+* Users and Client machines
+* One VPC
+* Two Availability Zones
+* Four Subnets (2 Public, 2 Private)
+* A NAT Gateway
+* A CloudFront distribution with an S3 bucket
+* Web servers in the Public Subnets sized according to your usage estimates
+* Application Servers in the Private Subnets sized according to your usage * estimates
+* DB Servers in the Private Subnets
+* Web Servers Load Balanced and Autoscaled
+* Application Servers Load Balanced and Autoscaled
+* A Master DB in AZ1 with a read replica in AZ2.
 
-<figure>
-  <img src="./fig/cloudformationCreate.png" alt=".." title="Optional title" width="60%" height="70%"/>  
- <figcaption></figcaption>
-</figure>
+Use [LucidChart](https://www.lucidchart.com/) or a similar diagramming application to create your schematic. Export your schematic as a PDF and save as ``Udacity_Diagram_1.pdf``.
 
-8. Fill in Stack name
-9. Name the VPC
-10. Update the CIDR blocks
-11. Click Next
-12. Click Next again
-13. Click Create stack
-14. Wait for the stack to build out. Refresh until status becomes **CREATE_COMPLETE**
-15. Observe the “Outputs” tab for the created IDs. These will be used later.
+### A.3.2 Part 2
 
-Once the **loudFormation** Stack has completed, you can look at the "Resources" tab to see all of the AWS resources that the stack has created. You can see both the type of resources that have been created, as well as the **AWS identifiers** for those resources so that you can locate these resources in the **AWS service** that they are a part of.
+You have been asked to plan a SERVERLESS architecture schematic for a new application development project. The project requires the following AWS infrastructure and services.
 
-The **Output** tab shows you custom output from the **CloudFormation** Stack that is labeled and described for you. These descriptions are custom descriptions that were added to the **CloudFormation** template and make it easier for you to find specific values that have been created as a part of the **CloudFormation** stack.
-Here, you can find the VPC ID that has been created, the subnet IDs including which subnets are public and which are private, and the Security Groups that have been created and a description of each.
+* A user and client machine
+* AWS Route 53
+* A CloudFront Distribution
+* AWS Cognito
+* AWS Lambda
+* API Gateway
+* DynamoDB
+* S3 Storage
 
-<figure>
-  <img src="./fig/cloudformationoutputs.png" alt=".." title="Optional title" width="60%" height="70%"/>  
- <figcaption></figcaption>
-</figure>
+Export your schematic as a PDF and save as ``Udacity_Diagram_2.pdf``
 
+## A.3 Task 2: Calculate Infrastructure Costs
+
+1. Use the [AWS Pricing Calculator](https://calculator.aws/#/) to estimate how much it will cost to run the services in your Part 1 diagram for one month.
+
+* Target a monthly estimate between $8,000-$10,000.
+* Be mindful of AWS regions when you are estimating costs.
+* Export the estimate as a CSV file named ``Initial_Cost_Estimate.csv``.
+
+2. Return to the [AWS Pricing Calculator](https://calculator.aws/#/) and reconfigure your estimates for the following scenarios:
+
+* Your budget has been reduced from $8,000-$10,000 to a maximum of $6,500. What services will you modify to meet this new budget? Export the updated costs in a CSV file named ``Reduced_Cost_Estimate.csv`` and write up a brief narrative of the changes you made in the CSV file below the cost estimate.
+
+* Your budget has been increased to $20,000. What resources will you add and why?
+Think about where to add redundancy and how to improve performance. Re-configure your estimate to a monthly invoice of $18K-20K. Export the updated costs to a CSV file named ``Increased_Cost Estimate.csv`` and write up a brief narrative of the changes you made in the CSV file below the cost estimate.
+
+## A.4 [OPTIONAL] Task 3: Configure Permissions
+
+> Attempt this task only if you are using your personal AWS account.
+
+In order to complete this task, please ensure your IAM users have been [granted access to the billing dashboard](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/control-access-billing.html) (Activating Access to the Billing and Cost Management Console).
+
+1. Update the AWS password policy.
+
+* Minimum password length = 8
+* Require at least one uppercase letter
+* Require at least one lowercase letter
+* Require at least one number
+* Require at least one non-alphanumeric character.
+
+  Submit a screenshot of the Password Policy from the IAM Account settings page. Name the screenshot ``udacity_password_policy.png or udacity_password_policy.jpg``.
+
+2. Create a Group named ``CloudTrailAdmins`` and give it the two ``CloudTrail`` privileges.
+
+3. Create a Group named Reviewers and give it the ``Billing`` privilege.
+
+4. Configure a user named ``CloudTrail`` and a user named ``Accountant``. Give the users AWS Console access and assign them a password that conforms to your password policy. **Require them to change their password when they login.**
+
+5. Assign ``CloudTrail`` to the ``CloudTrailAdmins`` group. Assign ``Accountant`` to the ``Reviewers`` group .
+
+6. Test both user accounts by logging into the AWS console as the users ``CloudTrail`` and ``Accountant`` after changing their passwords on login. Login using your numerical AccountID.
+
+7. While logged-in as the user ``CloudTrail``, go to the CloudTrail page and create a trail named ``Udacity_Trail``. Enable logging on all Read/Writes Management Events and S3 and Lambda events Data Events. Create a new S3 Bucket to store the CloudTrail log. There is no need for advanced configuration.
+
+8. Download the portion of the CloudTrail log that shows the entire Task 3 timeframe and save it as ``UdacityCloudTrailLog.csv``.
+
+9. Before Logging off, return to the CloudTrail configuration page. Disable S3 logging.
+
+## A.5 Task 5 : Use Terraform to Provision AWS Infrastructure
+
+### A.5.1 Part 1
+
+1. Download the **starter code**.
+
+2. In the ``main.tf`` file write the code to provision
+
+* AWS as the cloud provider
+* Use an existing VPC ID
+* Use an existing public subnet
+* 4 AWS t2.micro EC2 instances named Udacity T2
+* 2 m4.large EC2 instances named Udacity M4
+
+3. Run Terraform.
+
+4. Take a screenshot of the 6 EC2 instances in the AWS console. Save it as ``Terraform_1_1.png`` or ``Terraform_1_1.jpg`` .
+
+5. Use Terraform to delete the 2 m4.large instances.
+
+6. Take an updated screenshot of the AWS console showing only the 4 t2.micro instances and save it as ``Terraform_1_2.png`` or ``Terraform_1_2.jpg``
+
+## A.5.2 Part 2
+
+1. In the Exercise_2 folder, write the code to deploy an AWS Lambda Function using Terraform. Your code should include:
+* A lambda.py file
+* A main.tf file
+* An outputs.tf file
+* A variables.tf file
+
+2. Take a screenshot of the EC2 instances page and save it as ``Terraform_2_1.png`` or ``Terraform_2_1.jpg``.
+
+3. Take a screenshot of the VPC page and save it as ``Terraform_2_2.png`` or ``Terraform_2_2.jpg``.
+
+4. Take a screenshot of the CloudWatch log entry for the lambda function execution and save it as ``Terraform_2_3.png`` or ``Terraform_2_3.jpg``.
+
+## Task 6: Destroy the Infrastructure using Terraform and prepare for submission
+
+1. Destroy all running provisioned infrastructure using Terraform so as not to incur unwanted charges.
+
+2. Take a screenshot of the EC2 instances page and label it ``Terraform_destroyed.png`` or ``Terraform_destroyed.jpg`` .
+
+3. Upload Terraform files, screenshots, schematics and CSV files to your GitHub repo
+Before submitting your project, please check to confirm that you have completed all of the requirements in the **Project Rubric**.
 ## [Part1: Data Durability And Recovery](./Part1_Data_Durability_And_Recovery.md)
 
 ## [Part2: Failover And Recovery](./Part2_Failover_And_Recovery.md)
